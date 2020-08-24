@@ -34,23 +34,20 @@ namespace PaymentContext.Domain.Entities
 
         public void AddSubscription(Subscription subscription)
         {
-            //if(subscription.Payments.Count == 0)
-
-
             var hasSubscriptionActive = false;
 
             foreach (var sub in _subscriptions)
                 if (sub.Active)
                     hasSubscriptionActive = true;
 
+            if (!hasSubscriptionActive)
+                _subscriptions.Add(subscription);
+
             AddNotifications(new Contract()
                 .Requires()
-                .IsFalse(hasSubscriptionActive, "Student.Subscriptions", "Você já tem uma assinatura ativa!")
-                .IsGreaterThan(0, subscription.Payments.Count, "Student.Subscription.Payments", "Essa assinatura não possui pagamento!")
+                .AreEquals(true, hasSubscriptionActive, "Student.Subscriptions", "Você já tem uma assinatura ativa!")
+                .IsLowerOrEqualsThan(0, subscription.Payments.Count, "Student.Subscription.Payments", "Essa assinatura não possui pagamento!")
             );
-
-            // if (hasSubscriptionActive)
-            //     AddNotification("Student.Subscriptions", "Você já tem uma assinatura ativa!");
         }
     }
 }
